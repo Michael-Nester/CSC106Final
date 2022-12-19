@@ -1,0 +1,237 @@
+
+//Michael Nester, Luca Nero
+//CSC 106
+//Final Project
+
+
+
+
+//background and global variables
+background(240, 240, 240);
+var started = false;
+var NUM_COLS = 5;
+var NUM_ROWS = 5;
+var move = 54;
+var numMoves = 0;
+var livesLeft = 3;
+
+
+
+//declare player object
+var player = function(playerX, playerY) {
+  this.x = playerX;
+  this.y = playerY;
+  this.size = 50;
+};
+
+
+//drawing the player character
+player.prototype.draw = function() {
+    fill(random(0, 255), random(0, 255), random(0, 255));
+    textSize(35);
+      image(getImage("avatars/starky-seed"), this.x, this.y, this.size, this.size);
+      textSize(19);
+      text("**", this.x + 15, this.y + 30, this.size, this.size);
+};
+
+
+
+//trying to get the moves to stay on the board
+
+var drawPlayer = new player(170, 170);
+
+
+//declare tile object
+var Tile = function(x, y, face) {
+    this.posX = 2;
+    this.posY = 2;
+    this.x = x;
+    this.y = y;
+    this.size = 50;
+    //not relevant
+    this.face = face;
+    this.isFaceUp = true;
+    this.isMatch = false;
+};
+
+//scene object declaration for obstacles and other scenes
+var scene = function(background, statement, answer){
+    this.background = background;
+    this.title = statement;
+    this.answer = answer;
+};
+
+
+//config 
+scene.prototype.draw = function() {
+    background(203, 250, 197);
+    fill(0, 0, 0);
+    text(this.title, 100, 100, 100, 100);
+};
+
+
+// new scene for question 1
+var question1 = new scene(3, "Question: What character ends every statement in java?", 2);
+
+
+//draw tiles
+/*Tile.prototype.draw = function() {
+    fill(166, 103, 40);
+    strokeWeight(2);
+    rect(this.x, this.y, this.size, this.size, 10);
+};*/
+
+//draw tiles
+Tile.prototype.drawStart = function() {
+    fill(181, 148, 105);
+    strokeWeight(2);
+    rect(this.x, this.y, this.size, this.size, 0);
+};
+
+//declare tiles array
+var tiles = [];
+
+//create tile grid
+for (var i = 0; i < NUM_COLS; i++) {
+    for (var j = 0; j < NUM_ROWS; j++) {
+        var tileX = i * 54 + 60;
+        var tileY = j * 54 + 60;
+        tiles.push(new Tile(tileX, tileY));
+    }
+}
+
+
+//small array for center coords for x and y centers of each tile
+var tileCenterX = [80, 135, 243, 298];
+var tileCenterY = [80, 135, 240, 290];
+
+var tileIndexX = [0, 1, 2, 3, 4];
+var tileIndexY = [0, 1, 2, 3, 4];
+
+//move functions for the player \/
+player.prototype.moveUp = function() {
+    if (this.y > 105) {
+        this.y -= move;
+//store each move
+        numMoves += 1;
+    }
+    else {
+        this.y = 165;
+        this.x = 170;
+//lose a life if you move off the grid, restart in the center
+        livesLeft -= 1;
+    }
+};
+//move down function
+player.prototype.moveDown = function() {
+    if (this.y < 250) {
+        this.y += move;
+        numMoves += 1;
+    }
+    else {
+        this.y = 165;
+        this.x = 170;
+        livesLeft -= 1;
+    }
+
+};
+//move left function
+player.prototype.moveLeft = function() {
+    if (this.x > 90) {
+        this.x -= move;
+        numMoves += 1;
+    } else {
+        this.y = 165;
+        this.x = 170;
+        livesLeft -= 1;
+    }
+
+
+};
+
+//move right function
+player.prototype.moveRight = function() {
+    if (this.x < 250) {
+        this.x += move;
+        numMoves += 1;
+    } else {
+        this.y = 165;
+        this.x =170;
+        livesLeft -= 1;
+    }
+
+};
+
+//debug boolean
+var itWorks = false;
+
+//case for the first obstacle
+if (numMoves === 2) {
+    itWorks = true;
+//fill(0, 0, 0);
+//text("question 1: what character do you end most coding lines with?", 200, 300, 100, 100);
+}
+
+
+//draw function
+draw = function() {
+//draw splash screen
+    if (started === false) {
+    fill (0, 0, 0);
+    textSize(50);
+    text("TREASURE\n    GAME!",64, 50); 
+    fill(214, 247, 202);
+    rect(0, 0, 50, 443, 0);
+    rect(349, 0, 50, 458, 0);
+    fill(255, 255, 255);
+    fill(125, 95, 12);
+    rect(24, 0, 5, 467, 0);
+    rect(373, 0, 5, 467, 0);
+//treasure image
+    var titleI = getImage("cute/ChestOpen");
+    image(titleI, 124, 99, 151, 169);
+    textSize(36);
+    fill(255, 255, 255);
+    text("START",143,210);
+    }
+//if start button is clicked...
+    if (mouseX>100&&mouseX<300&&mouseY>150&&mouseY<250&&mouseIsPressed) {
+        started = true;
+    }
+// ... start game
+    else if (started === true) {
+    background(255, 255, 255);
+    for (var i = 0; i < tiles.length; i++) {
+    tiles[i].drawStart();
+    }
+    fill(0, 0, 0);
+//show how many lives left you have
+    text("Lives Left: " + livesLeft, 200, 350, 100, 100);
+    drawPlayer.draw();
+    drawPlayer.draw();
+    }
+};
+
+
+//function for moving the player
+keyPressed = function() {
+//calling each move function when up down left or right arrow key is pressed, respectfully
+    if (keyCode === UP) {
+        drawPlayer.moveUp();
+        drawPlayer.draw();
+    }
+    if (keyCode === DOWN) {
+        drawPlayer.moveDown();
+        drawPlayer.draw();
+    }
+    if (keyCode === LEFT) {
+        drawPlayer.moveLeft();
+        drawPlayer.draw();
+    }
+    if (keyCode === RIGHT) {
+        drawPlayer.moveRight();
+        drawPlayer.draw();
+    }
+    
+};
+
